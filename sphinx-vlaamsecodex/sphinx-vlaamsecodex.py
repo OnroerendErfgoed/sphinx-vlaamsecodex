@@ -126,23 +126,27 @@ def get_text_art(AID):
         RecID = artikel_json['HistorischeVersies'][len(artikel_json['HistorischeVersies'])-1]['RecID']
         url_arthis = codex_vlaanderen_arthisid + str(RecID)
         r = requests.get(url_arthis)
-        return json.loads(r.content[1:len(r.content)-2])['Tekst'].replace('<BR>', '<BR><BR>')
+        return json.loads(r.content[1:len(r.content)-2])['Tekst'].replace('<BR>', '|BR|')
     except:
         return ""
 
 class ArtikelTextDirective(Directive):
     """Directive to the tekst of the artikel in the Vlaamse Codex.
     """
-    has_content = False
     required_arguments = 1
     optional_arguments = 0
 
     def run(self):
         AID = directives.uri(self.arguments[0])
         content = get_text_art(AID)
-        html_input = '<div class="admonition note"> <p class="first admonition-title">Artikel</p> %s </div>' % content
-        node = nodes.raw('', html_input, format='html')
-        return [node]
+        html_input = '<div class="admonition note art"> <p class="first admonition-title">Artikel</p> %s </div>' \
+                     % content.replace('|BR|', '<BR><BR>')
+        latex_line = r'\rule{\textwidth}{0.6pt}'
+        latex_input = r'\newline %s \textbf{Artikel:} %s %s'  \
+                      %(latex_line, content.replace('|BR|', r'\newline \newline '), latex_line)
+        node_html = nodes.raw('', html_input, format='html')
+        node_latex = nodes.raw('', latex_input, format='latex')
+        return [node_latex, node_html]
 
 def setup(app):
     """Install the plugin.
