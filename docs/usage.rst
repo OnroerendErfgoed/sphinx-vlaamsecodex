@@ -58,15 +58,12 @@ Sphinx directive to show the text of an article given the article id
 
 .. codex-art-text:: 1168906
 
-.. code-block:: python
-
-    .. codex-art-text:: 1168908
-
-*becomes:*
-
-.. codex-art-text:: 1168908
 
 Possibility to show the article text collapsed:
+
+.. note::
+
+    Add css class: "admonition note art collapse" en css: "admonition note art" to sphinx_rtd_theme
 
 .. code-block:: python
 
@@ -77,3 +74,16 @@ Possibility to show the article text collapsed:
 
 .. codex-art-text:: 1168906
     :collapse:
+
+An other example:
+
+.. code-block:: python
+
+    .. codex-art-text:: 1168908
+
+
+*becomes:*
+
+.. codex-art-text:: 1168908
+
+
