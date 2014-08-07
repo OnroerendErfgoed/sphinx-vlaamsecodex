@@ -15,7 +15,7 @@ setup(
     long_description=open('README.md').read(),
     include_package_data=True,
     zip_safe=False,
-    packages=['sphinx-vlaamsecodex'],
+    packages=['sphinx-oe'],
     install_requires=requires,
     classifiers=[
         'Programming Language :: Python :: 2.7',
