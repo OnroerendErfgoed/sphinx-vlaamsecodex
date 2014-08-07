@@ -1,6 +1,7 @@
 from docutils import nodes, utils
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst import directives
+from docutils.parsers.rst.roles import set_classes
 import requests, json
 
 codex_vlaanderen_url = 'http://codex.vlaanderen.be'
@@ -131,16 +132,20 @@ def get_text_art(AID):
         return ""
 
 class ArtikelTextDirective(Directive):
-    """Directive to the tekst of the artikel in the Vlaamse Codex.
+    """Directive to show the tekst of the artikel in the Vlaamse Codex.
+       Option to collapse (article text is hidden)
     """
     required_arguments = 1
     optional_arguments = 0
+    option_spec = dict(collapse=directives.flag)
 
     def run(self):
         AID = directives.uri(self.arguments[0])
+        set_classes(self.options)
         content = get_text_art(AID)
-        html_input = '<div class="admonition note art"> <p class="first admonition-title">Artikel</p> %s </div>' \
-                     % content.replace('|BR|', '<BR><BR>')
+        html_class = "admonition note art collapse" if 'collapse' in self.options else "admonition note art"
+        html_input = '<div class="%s"> <p class="first admonition-title">Artikel</p> %s </div>' \
+                     % (html_class, content.replace('|BR|', '<BR><BR>'))
         latex_line = r'\rule{\textwidth}{0.6pt}'
         latex_input = r'\newline %s \textbf{Artikel:} %s %s'  \
                       %(latex_line, content.replace('|BR|', r'\newline \newline '), latex_line)
