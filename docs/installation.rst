@@ -21,4 +21,4 @@ Create a sphinx project in the same environment and include the extention in the
 
 .. code-block:: python
 
-    extensions = ['sphinx-oe.sphinx-vlaamsecodex', ]
+    extensions = ['sphinxcontrib.sphinx-vlaamsecodex', ]
