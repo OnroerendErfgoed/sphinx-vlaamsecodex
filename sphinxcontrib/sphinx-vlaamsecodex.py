@@ -3,6 +3,7 @@ from docutils.parsers.rst import Directive
 from docutils.parsers.rst import directives
 from docutils.parsers.rst.roles import set_classes
 import requests, json
+import uuid
 
 codex_vlaanderen_url = 'http://codex.vlaanderen.be'
 codexws_vlaanderen_url = 'http://codexws.vlaanderen.be/'
@@ -141,13 +142,14 @@ class ArtikelTextDirective(Directive):
 
     def run(self):
         AID = directives.uri(self.arguments[0])
+        collapseclass= AID + uuid.uuid4().hex
         set_classes(self.options)
         content = get_text_art(AID)
         art_info = get_info_artikel(AID)
         artnr= art_info['ArtNr']
-        html_class = "art collapse" if 'collapse' in self.options else "art"
-        html_input = '<dl class="%s"> <dt class="article"><tt class="descname article"> Artikel %s</tt></dt><dd class="article-content"> %s <dd></dl>' \
-                     % (html_class, artnr, content.replace('|BR|', '<BR><BR>'))
+        html_class = "collapsable art" if 'collapse' in self.options else "art"
+        html_input = '<dl class="%s"><input class="toggle-box" id="%s" type="checkbox"><label for="%s"> <dt class="article"><tt class="descname article"> Artikel %s</tt></dt></label><dd class="article-content"> %s <dd></dl>' \
+                     % (html_class, collapseclass, collapseclass, artnr, content.replace('|BR|', '<BR><BR>'))
         latex_line = r'\rule{\textwidth}{0.6pt}'
         latex_input = r'\newline %s \textbf{Artikel:} %s %s'  \
                       %(latex_line, content.replace('|BR|', r'\newline \newline '), latex_line)
