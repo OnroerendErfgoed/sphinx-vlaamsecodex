@@ -143,9 +143,11 @@ class ArtikelTextDirective(Directive):
         AID = directives.uri(self.arguments[0])
         set_classes(self.options)
         content = get_text_art(AID)
+        art_info = get_info_artikel(AID)
+        artnr= art_info['ArtNr']
         html_class = "art collapse" if 'collapse' in self.options else "art"
-        html_input = '<div class="%s"> <p class="first admonition-title">Artikel</p> %s </div>' \
-                     % (html_class, content.replace('|BR|', '<BR><BR>'))
+        html_input = '<dl class="%s"> <dt class="article"><tt class="descname article"> Artikel %s</tt></dt><dd class="article-content"> %s <dd></dl>' \
+                     % (html_class, artnr, content.replace('|BR|', '<BR><BR>'))
         latex_line = r'\rule{\textwidth}{0.6pt}'
         latex_input = r'\newline %s \textbf{Artikel:} %s %s'  \
                       %(latex_line, content.replace('|BR|', r'\newline \newline '), latex_line)
