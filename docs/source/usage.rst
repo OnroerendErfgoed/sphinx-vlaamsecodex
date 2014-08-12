@@ -108,9 +108,9 @@ Possibility to show the article text collapsed:
           content: "\2212";
         }
 
-    It is also possible to extend the css for a document by adding a layout.html file in a _templates folder with the following code:
+    It is also possible to extend the css for a document by adding a page.html file in a _templates folder with the following code:
 
-        {% extends "!layout.html" %}
+        {% extends "!page.html" %}
         {% set css_files = css_files + ["_static/customstyle.css"] %}
 
 .. code-block:: python
