@@ -27,5 +27,4 @@ setup(
     package_data={'': ['README.md']},
     include_package_data=True,
     install_requires=requires,
-    namespace_packages=['sphinxcontrib'],
 )
