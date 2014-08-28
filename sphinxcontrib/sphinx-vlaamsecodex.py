@@ -84,7 +84,7 @@ def get_info_artikel(AID):
     """
     url = codex_vlaanderen_artid + str(AID)
     r = requests.get(url)
-    artikel_json = json.loads(r.content[1:len(r.content)-2])
+    artikel_json = json.loads(r.content[1:len(r.content)-2].decode())
     return {
         'ArtNr': artikel_json['ArtNr'],
         'ref': codex_vlaanderen_doc_url + str(artikel_json['DocumentID']) + codex_vlaanderen_art_posturl + str(AID)
@@ -98,7 +98,7 @@ def get_title_doc(DID, default=""):
     """
     url = codex_vlaanderen_docid + str(DID)
     r = requests.get(url)
-    doc_json = json.loads(r.content[1:len(r.content)-2])
+    doc_json = json.loads(r.content[1:len(r.content)-2].decode())
     try:
         return "%s %s" %(doc_json['DocumentType'], doc_json['Naam'])
     except:
@@ -123,12 +123,12 @@ def get_text_art(AID):
     """
     url_art = codex_vlaanderen_artid + str(AID)
     r = requests.get(url_art)
-    artikel_json = json.loads(r.content[1:len(r.content)-2])
+    artikel_json = json.loads(r.content[1:len(r.content)-2].decode())
     try:
         RecID = artikel_json['HistorischeVersies'][len(artikel_json['HistorischeVersies'])-1]['RecID']
         url_arthis = codex_vlaanderen_arthisid + str(RecID)
         r = requests.get(url_arthis)
-        return json.loads(r.content[1:len(r.content)-2])['Tekst'].replace('<BR>', '|BR|')
+        return json.loads(r.content[1:len(r.content)-2].decode())['Tekst'].replace('<BR>', '|BR|')
     except:
         return ""
 
