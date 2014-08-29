@@ -1,4 +1,5 @@
 import requests, json
+import os
 from collections import OrderedDict 
 
 codex_vlaanderen_url = 'http://codexws.vlaanderen.be'
@@ -11,7 +12,7 @@ class Chapter:
     def __init__(self, chapterid, title, children, chaptertype):
         self.id = chapterid
         self.children = children
-        self.title = title
+        self.title = title.encode('utf8')
         self.sections = []
         self.articles = []
         self.mainchapter = chaptertype
@@ -22,11 +23,30 @@ class Chapter:
     def add_article(self, artnr, recid):
         self.articles.append(Article(artnr, recid))
 
+    def get_line(self, char):
+        line=""
+        for i in range(len(self.title)-2):
+            line += char
+        return line + "\n"
+
+    def get_headtitle(self):
+        title = self.get_line("-")+self.title+self.get_line("-")+"\n"
+        return title
+
+    def get_subtitle(self):
+        subtitle = "\n\n"+self.title+self.get_line("^")+"\n"
+        return subtitle
+
+    def get_subsubtitle(self):
+        title=self.title.replace("\r\n","")
+        subsubtitle = "\n**"+title+"**"+"\n\n"
+        return subsubtitle
+
 class Article:
 
     def __init__(self, artnr, recid):
-        self.artnr = artnr
-        self.recid = recid
+        self.artnr = str(artnr)
+        self.recid = str(recid)
 
 
 def decreet_get_chapters(documentID, chaptertype = False):
@@ -35,7 +55,7 @@ def decreet_get_chapters(documentID, chaptertype = False):
     data = json.loads(r.content[1:len(r.content)-2])
     h = []
     for value in data:
-        chapter = Chapter(value['RecID'], value['Titel'], value['ChildCount'], chaptertype)
+        chapter = Chapter(value['RecID'], value['TitelParsed'], value['ChildCount'], chaptertype)
         h.append(chapter)
     return h
 
@@ -56,17 +76,41 @@ def rec_get_things(hoofdstukken):
             h.sections= decreet_get_chapters(h.id)
             rec_get_things(h.sections)
 
-def rec_print_things(hoofdstukken):
+def rec_print_things(hoofdstukken, chaptershort="", counter = 0):
+    counter += 1
     for h in hoofdstukken:
         if (h.mainchapter):
-            words=h.title.split()
-            foldername = words[0]+'_'+words[1]+'_articles'
-            print foldername
+            counter = 0
+            words=h.title.lower().split()
+            chaptershort = words[0] + "_" + words[1]
+            foldername = "./"+chaptershort+'_articles'
+            if not os.path.exists(foldername):
+                os.mkdir(foldername)
+            with open("index.rst", 'a') as file:
+                file.write(chaptershort+"\n")
+        filename = chaptershort + ".rst"
+        with open(filename, 'a') as file:
+            if (counter < 2):
+                if (h.mainchapter):
+                    file.write(h.get_headtitle())
+                else:
+                    file.write(h.get_subtitle())
+            else:
+                file.write(h.get_subsubtitle())
+
         if (h.children == 0):
-            for article in h.articles:
-                print ".. include:: ../" + str(article.artnr).replace(".", "_") + ".rst"
+                for article in h.articles:
+                    articlenr = article.artnr.replace(".", "_")
+                    articlenr = articlenr.replace("/","_")
+                    words=articlenr.split("_")
+                    articleloc = chaptershort + "_articles/" + articlenr + "article.rst"
+                    with open(articleloc, 'a') as file:
+                        file.write(".. codex-art-text:: " + article.recid)
+                    with open(filename, 'a') as file:
+                        file.write(".. include:: " + articleloc+"\n")
+
         else:
-            rec_print_things(h.sections)
+            rec_print_things(h.sections, chaptershort, counter)
 
 if  __name__ =='__main__':
     hoofdstukken = decreet_get_chapters("1062445", True)
