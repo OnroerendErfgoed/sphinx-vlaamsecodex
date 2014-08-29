@@ -157,6 +157,36 @@ class ArtikelTextDirective(Directive):
         node_latex = nodes.raw('', latex_input, format='latex')
         return [node_latex, node_html]
 
+class CollapsableTextDirective(Directive):
+    """Directive to show the tekst of the artikel in the Vlaamse Codex.
+       Option to collapse (article text is hidden)
+    """
+    required_arguments = 1
+    optional_arguments = 0
+    option_spec = dict(collapse=directives.flag)
+    option_spec['description'] = directives.unchanged_required
+
+    has_content = True
+
+    def run(self):
+        print "test"
+        title = self.arguments[0]
+        collapseclass= uuid.uuid4().hex
+        set_classes(self.options)
+        description = self.options['description']
+        html_class = "collapsable collapstext" if 'collapse' in self.options else "collapstext"
+        html_input = '<div class="%s"><input class="toggle-box" id="%s" type="checkbox"><label for="%s"> <h2>%s</h2><div class="collapstext-description">%s</div><div class="collapstext-content"> %s </div></div></label>' \
+                     % (html_class, collapseclass, collapseclass, title, self.options['description'], self.content)
+        latex_line = r'\rule{\textwidth}{0.6pt}'
+        latex_input = r'\newline %s \textbf{Artikel:} %s %s'  \
+                      %(latex_line, self.content, latex_line)
+        node_html = nodes.raw('', html_input, format='html')
+        node_latex = nodes.raw('', latex_input, format='latex')
+        return [node_latex, node_html]
+
+
+
+
 def setup(app):
     """Install the plugin.
 
@@ -166,6 +196,7 @@ def setup(app):
     app.add_role('codex-doc', codex_role)
     app.add_role('codex-art', codex_role)
     app.add_directive("codex-art-text", ArtikelTextDirective)
+    app.add_directive("collaps-text", CollapsableTextDirective)
     app.add_config_value('codex_vlaanderen_url', codex_vlaanderen_url, 'env')
     app.add_config_value('codexws_vlaanderen_url', codexws_vlaanderen_url, 'env')
     app.add_config_value('codex_vlaanderen_doc_url', codex_vlaanderen_doc_url, 'env')
