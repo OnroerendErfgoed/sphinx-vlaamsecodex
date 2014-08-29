@@ -158,8 +158,7 @@ class ArtikelTextDirective(Directive):
         return [node_latex, node_html]
 
 class CollapsableTextDirective(Directive):
-    """Directive to show the tekst of the artikel in the Vlaamse Codex.
-       Option to collapse (article text is hidden)
+    """Directive to collapse text
     """
     required_arguments = 1
     optional_arguments = 0
