@@ -78,17 +78,20 @@ def rec_get_things(hoofdstukken):
 
 def rec_print_things(hoofdstukken, chaptershort="", counter = 0):
     counter += 1
+    codex_foldername = "vlaamse_codex"
     for h in hoofdstukken:
         if (h.mainchapter):
             counter = 0
             words=h.title.lower().split()
             chaptershort = words[0] + "_" + words[1]
-            foldername = "./"+chaptershort+'_articles'
-            if not os.path.exists(foldername):
-                os.mkdir(foldername)
-            with open("index.rst", 'a') as file:
-                file.write(chaptershort+"\n")
-        filename = chaptershort + ".rst"
+            if not os.path.exists(codex_foldername):
+                os.mkdir(codex_foldername)
+            art_foldername = "./"+codex_foldername+"/"+chaptershort+'_articles'
+            if not os.path.exists(art_foldername):
+                os.mkdir(art_foldername)
+            with open(codex_foldername + "/index.rst", 'a') as file:
+                file.write(".. include:: " + chaptershort + ".rst\n")
+        filename = codex_foldername + "/" + chaptershort + ".rst"
         with open(filename, 'a') as file:
             if (counter < 2):
                 if (h.mainchapter):
@@ -104,8 +107,8 @@ def rec_print_things(hoofdstukken, chaptershort="", counter = 0):
                     articlenr = articlenr.replace("/","_")
                     words=articlenr.split("_")
                     articleloc = chaptershort + "_articles/" + articlenr + "article.rst"
-                    with open(articleloc, 'a') as file:
-                        file.write(".. codex-art-text:: " + article.recid)
+                    with open(codex_foldername + "/" + articleloc, 'a') as file:
+                        file.write(".. codex-art-text:: " + article.recid+"\n")
                     with open(filename, 'a') as file:
                         file.write(".. include:: " + articleloc+"\n")
 

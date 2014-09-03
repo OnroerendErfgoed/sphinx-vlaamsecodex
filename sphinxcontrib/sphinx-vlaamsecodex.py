@@ -157,25 +157,23 @@ class ArtikelTextDirective(Directive):
         node_latex = nodes.raw('', latex_input, format='latex')
         return [node_latex, node_html]
 
-class CollapsableTextDirective(Directive):
+class CollapsableVraagDirective(Directive):
     """Directive to collapse text
     """
-    required_arguments = 1
+    required_arguments = 0
     optional_arguments = 0
     option_spec = dict(collapse=directives.flag)
-    option_spec['description'] = directives.unchanged_required
+    option_spec['vraag'] = directives.unchanged_required  
+    option_spec['beschrijving'] = directives.unchanged_required
 
     has_content = True
 
     def run(self):
-        print "test"
-        title = self.arguments[0]
         collapseclass= uuid.uuid4().hex
         set_classes(self.options)
-        description = self.options['description']
-        html_class = "collapsable collapstext" if 'collapse' in self.options else "collapstext"
-        html_input = '<div class="%s"><input class="toggle-box" id="%s" type="checkbox"><label for="%s"> <h2>%s</h2><div class="collapstext-description">%s</div><div class="collapstext-content"> %s </div></div></label>' \
-                     % (html_class, collapseclass, collapseclass, title, self.options['description'], self.content)
+        html_class = "collapsable collapstext"
+        html_input = '<dl class="%s"><input class="toggle-box" id="%s" type="checkbox"><label for="%s"> <dt class="title"><tt class="descname">%s</tt></dt></label><div class="textcontent"><dd class="description"><i> %s </i></dd><dd class="content"> %s </dd></div></dl>' \
+                     % (html_class, collapseclass, collapseclass, self.options['vraag'], self.options['beschrijving'], str(self.content[0]))
         latex_line = r'\rule{\textwidth}{0.6pt}'
         latex_input = r'\newline %s \textbf{Artikel:} %s %s'  \
                       %(latex_line, self.content, latex_line)
@@ -195,7 +193,7 @@ def setup(app):
     app.add_role('codex-doc', codex_role)
     app.add_role('codex-art', codex_role)
     app.add_directive("codex-art-text", ArtikelTextDirective)
-    app.add_directive("collaps-text", CollapsableTextDirective)
+    app.add_directive("codex-vraag", CollapsableVraagDirective)
     app.add_config_value('codex_vlaanderen_url', codex_vlaanderen_url, 'env')
     app.add_config_value('codexws_vlaanderen_url', codexws_vlaanderen_url, 'env')
     app.add_config_value('codex_vlaanderen_doc_url', codex_vlaanderen_doc_url, 'env')
