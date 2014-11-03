@@ -9,9 +9,10 @@ artikelurl = codex_vlaanderen_url + "/Artikel/ListByHoofdstukId/"
 
 
 class Chapter:
-    def __init__(self, chapterid, title, children, chaptertype):
+    def __init__(self, chapterid, title, children, artikelcount, chaptertype):
         self.id = chapterid
         self.children = children
+        self.artikelcount = artikelcount
         self.title = title.encode('utf8')
         self.sections = []
         self.articles = []
@@ -51,17 +52,21 @@ class Article:
 
 def decreet_get_chapters(documentID, chaptertype = False):
     url = decreeturl+str(documentID)
+    print url
     r = requests.get(url)
+    print r
     data = json.loads(r.content[1:len(r.content)-2])
+    print data
     h = []
     for value in data:
-        chapter = Chapter(value['RecID'], value['TitelParsed'], value['ChildCount'], chaptertype)
+        chapter = Chapter(value['RecID'], value['TitelParsed'], value['ChildCount'], value['ArtikelCount'],chaptertype)
         h.append(chapter)
     return h
 
 
 def decreet_get_articleids(parent):
     url = artikelurl + str(parent.id)
+    print url
     r = requests.get(url)
     data = json.loads(r.content[1:len(r.content)-2])
     for value in data:
@@ -70,15 +75,18 @@ def decreet_get_articleids(parent):
 
 def rec_get_things(hoofdstukken):
     for h in hoofdstukken:
-        if (h.children == 0):
+        if (h.children == 0 and h.artikelcount!=0):
+            print h.id
             decreet_get_articleids(h)
+        elif (h.children == 0 and h.artikelcount==0):
+            print "empty"
         else:
             h.sections= decreet_get_chapters(h.id)
             rec_get_things(h.sections)
 
 def rec_print_things(hoofdstukken, chaptershort="", counter = 0):
     counter += 1
-    codex_foldername = "vlaamse_codex"
+    codex_foldername = "erfgoeddecreet"
     for h in hoofdstukken:
         if (h.mainchapter):
             counter = 0
@@ -115,8 +123,10 @@ def rec_print_things(hoofdstukken, chaptershort="", counter = 0):
         else:
             rec_print_things(h.sections, chaptershort, counter)
 
+#http://codexws.vlaanderen.be/Hoofdstuk/ListByDocumentId/1023317
+#http://codexws.vlaanderen.be/Hoofdstuk/ListByDocumentId/1024695
 if  __name__ =='__main__':
-    hoofdstukken = decreet_get_chapters("1062445", True)
+    hoofdstukken = decreet_get_chapters("1068360", True)
     rec_get_things(hoofdstukken)
     rec_print_things(hoofdstukken)
 

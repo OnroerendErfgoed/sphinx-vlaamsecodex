@@ -6,7 +6,7 @@ requires = ['requests']
 
 setup(
     name='sphinx-vlaamsecodex',
-    version='0.1.1',
+    version='0.2.1',
     url='https://github.com/OnroerendErfgoed/sphinx-vlaamsecodex',
     license='MIT',
     author='Flanders Heritage Agency',
