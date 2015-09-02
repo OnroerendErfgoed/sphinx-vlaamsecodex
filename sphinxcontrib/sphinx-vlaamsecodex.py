@@ -169,11 +169,23 @@ class CollapsableVraagDirective(Directive):
     has_content = True
 
     def run(self):
+        
         collapseclass= uuid.uuid4().hex
         set_classes(self.options)
+
+        if 'beschrijving' in self.options:
+            beschrijving = self.options['beschrijving']
+        else:
+            beschrijving = ''
+
+        if 'vraag' in self.options:
+            vraag = self.options['vraag']
+        else:
+            vraag = ''
+
         html_class = "collapsable collapstext"
         html_input = '<dl class="%s"><input class="toggle-box" id="%s" type="checkbox"><label for="%s"> <dt class="title"><tt class="descname">%s</tt></dt></label><div class="textcontent"><dd class="description"><i> %s </i></dd><dd class="content"> %s </dd></div></dl>' \
-                     % (html_class, collapseclass, collapseclass, self.options['vraag'], self.options['beschrijving'], '<br/>'.join(self.content))
+                     % (html_class, collapseclass, collapseclass, vraag, beschrijving, '<br/>'.join(self.content))
         latex_line = r'\rule{\textwidth}{0.6pt}'
         latex_input = r'\newline %s \textbf{Artikel:} %s %s'  \
                       %(latex_line, self.content, latex_line)
