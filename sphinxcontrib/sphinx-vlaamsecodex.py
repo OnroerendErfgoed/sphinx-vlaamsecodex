@@ -4,6 +4,7 @@ from docutils.parsers.rst import directives
 from docutils.parsers.rst.roles import set_classes
 import requests, json
 import uuid
+import re
 
 codex_vlaanderen_url = 'http://codex.vlaanderen.be'
 codexws_vlaanderen_url = 'http://codexws.vlaanderen.be/'
@@ -150,9 +151,11 @@ class ArtikelTextDirective(Directive):
         html_class = "collapsable art" if 'collapse' in self.options else "art"
         html_input = '<dl class="%s"><input class="toggle-box" id="%s" type="checkbox"><label for="%s"> <dt class="article"><tt class="descname article"> Artikel %s</tt></dt></label><dd class="article-content"> %s <dd></dl>' \
                      % (html_class, collapseclass, collapseclass, artnr, content.replace('|BR|', '<BR><BR>'))
-        latex_line = r'\rule{\textwidth}{0.6pt}'
-        latex_input = r'\newline %s \textbf{Artikel:} %s %s'  \
-                      %(latex_line, content.replace('|BR|', r'\newline \newline '), latex_line)
+        latex_content = content.replace('|BR|', r'\newline \newline ')
+        latex_content = latex_content.replace('&nbsp;', '')
+        latex_content = cleanhtml(latex_content)
+        latex_input = r'\textbf{Artikel %s:} %s'  \
+                      %(artnr, latex_content)
         node_html = nodes.raw('', html_input, format='html')
         node_latex = nodes.raw('', latex_input, format='latex')
         return [node_latex, node_html]
@@ -182,19 +185,25 @@ class CollapsableVraagDirective(Directive):
             vraag = self.options['vraag']
         else:
             vraag = ''
-
+        content = '\newline'.join(self.content)
         html_class = "collapsable collapstext"
         html_input = '<dl class="%s"><input class="toggle-box" id="%s" type="checkbox"><label for="%s"> <dt class="title"><tt class="descname">%s</tt></dt></label><div class="textcontent"><dd class="description"><i> %s </i></dd><dd class="content"> %s </dd></div></dl>' \
                      % (html_class, collapseclass, collapseclass, vraag, beschrijving, '<br/>'.join(self.content))
-        latex_line = r'\rule{\textwidth}{0.6pt}'
-        latex_input = r'\newline %s \textbf{Artikel:} %s %s'  \
-                      %(latex_line, self.content, latex_line)
+        latex_input = r'\newline\newline  {\color{blue}\textbf{Vraag:} %s} \newline\newline \emph{%s} \newline\newline %s \newline\newline'  \
+                      %(vraag, beschrijving, content)
         node_html = nodes.raw('', html_input, format='html')
         node_latex = nodes.raw('', latex_input, format='latex')
         return [node_latex, node_html]
 
 
 
+def cleanhtml(raw_html):
+
+  cleanr =re.compile('<.*?>')
+
+  cleantext = re.sub(cleanr,'', raw_html)
+
+  return cleantext
 
 def setup(app):
     """Install the plugin.
